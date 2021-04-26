@@ -1,0 +1,86 @@
+'2021-04-26T21:49:18.690000':
+  category: GNATprove
+  files:
+  - E:\GitHub\SPARKprojets\obj\gnatprove
+  label: Basic Prove All
+  output: 'Phase 1 of 2: generation of Global contracts ...
+
+    Phase 2 of 2: flow analysis and proof ...
+
+    warning: no bodies have been analyzed by GNATprove
+
+    enable analysis of a non-generic body using SPARK_Mode
+
+    '
+  output_parser: GNATprove_Parser
+  timestamp: '2021-04-26T21:49:18.690000'
+'2021-04-26T21:50:26.336000':
+  category: GNATprove
+  files:
+  - E:\GitHub\SPARKprojets\obj\gnatprove
+  label: Basic Prove All
+  output: 'Phase 1 of 2: generation of Global contracts ...
+
+    Phase 2 of 2: flow analysis and proof ...
+
+    main.adb:22:11: warning: unused assignment to "S"[#0]
+
+    simplestack.adb:10:24: medium: range check might fail, in instantiation at main.adb:7
+    (e.g. when S = (storage => (others => 0), size => 100)) [possible explanation:
+    subprogram at simplestack.ads:13 should mention S in a precondition][#1]
+
+    simplestack.adb:16:23: medium: array index check might fail, in instantiation
+    at main.adb:7 [possible explanation: subprogram at simplestack.ads:15 should mention
+    S in a precondition][#2]
+
+    Summary logged in E:\GitHub\SPARKprojets\obj\gnatprove\gnatprove.out
+
+    '
+  output_parser: GNATprove_Parser
+  timestamp: '2021-04-26T21:50:26.336000'
+'2021-04-26T22:02:53.499000':
+  category: GNATprove
+  files:
+  - E:\GitHub\SPARKprojets\obj\gnatprove
+  label: Basic Prove All
+  output: 'Phase 1 of 2: generation of Global contracts ...
+
+    simplestack.ads:30:07: expression function must be enclosed in parentheses
+
+    gnatprove: error during generation of Global contracts
+
+    '
+  output_parser: GNATprove_Parser
+  timestamp: '2021-04-26T22:02:53.499000'
+'2021-04-26T22:03:14.112000':
+  category: GNATprove
+  files:
+  - E:\GitHub\SPARKprojets\obj\gnatprove
+  label: Basic Prove All
+  output: 'Phase 1 of 2: generation of Global contracts ...
+
+    Phase 2 of 2: flow analysis and proof ...
+
+    main.adb:18:06: medium: precondition might fail, cannot prove Size(S) /= Max_Size
+    (e.g. when S = (storage => (others => 0), size => 0)) [possible explanation: call
+    at line 16 should mention S (for argument S) in a postcondition][#1]
+
+    main.adb:19:06: medium: precondition might fail, cannot prove Size(S) /= Max_Size
+    (e.g. when S = (storage => (others => 0), size => 0)) [possible explanation: call
+    at line 18 should mention S (for argument S) in a postcondition][#2]
+
+    main.adb:21:06: medium: precondition might fail, cannot prove Size(S) /= 0 (e.g.
+    when S = (storage => (others => 0), size => 0)) [possible explanation: call at
+    line 19 should mention S (for argument S) in a postcondition][#3]
+
+    main.adb:22:06: medium: precondition might fail, cannot prove Size(S) /= 0 (e.g.
+    when S = (storage => (others => 0), size => 0)) [possible explanation: call at
+    line 21 should mention S (for argument S) in a postcondition][#4]
+
+    main.adb:22:11: warning: unused assignment to "S"[#0]
+
+    Summary logged in E:\GitHub\SPARKprojets\obj\gnatprove\gnatprove.out
+
+    '
+  output_parser: GNATprove_Parser
+  timestamp: '2021-04-26T22:03:14.112000'

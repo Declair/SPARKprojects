@@ -1,0 +1,31 @@
+Summary of SPARK analysis
+=========================
+
+--------------------------------------------------------------------------------------------
+SPARK Analysis results        Total       Flow   CodePeer     Provers   Justified   Unproved
+--------------------------------------------------------------------------------------------
+Data Dependencies                 .          .          .           .           .          .
+Flow Dependencies                 .          .          .           .           .          .
+Initialization                    5          5          .           .           .          .
+Non-Aliasing                      .          .          .           .           .          .
+Run-time Checks                   4          .          .    4 (CVC4)           .          .
+Assertions                        .          .          .           .           .          .
+Functional Contracts              4          .          .           .           .          4
+LSP Verification                  .          .          .           .           .          .
+Termination                       .          .          .           .           .          .
+Concurrency                       .          .          .           .           .          .
+--------------------------------------------------------------------------------------------
+Total                            13    5 (38%)          .     4 (31%)           .    4 (31%)
+
+
+max steps used for successful proof: 1
+
+Analyzed 1 unit
+in unit main, 7 subprograms and packages out of 7 analyzed
+  Main at main.adb:5 flow analyzed (0 errors, 0 checks and 1 warnings) and not proved, 0 checks out of 4 proved
+  Main.SS at main.adb:7 flow analyzed (0 errors, 0 checks and 0 warnings) and proved (0 checks)
+  Main.SS.Init at simplestack.ads:13, instantiated at main.adb:7 flow analyzed (0 errors, 0 checks and 0 warnings) and proved (0 checks)
+  Main.SS.Pop at simplestack.ads:18, instantiated at main.adb:7 flow analyzed (0 errors, 0 checks and 0 warnings) and proved (2 checks)
+  Main.SS.Push at simplestack.ads:15, instantiated at main.adb:7 flow analyzed (0 errors, 0 checks and 0 warnings) and proved (2 checks)
+  Main.SS.SimpleStack at simplestack.ads:9, instantiated at main.adb:7 flow analyzed (0 errors, 0 checks and 0 warnings) and proved (0 checks)
+  Main.SS.Size at simplestack.ads:11, instantiated at main.adb:7 flow analyzed (0 errors, 0 checks and 0 warnings) and proved (0 checks)

@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<Locations >
+  <Project>
+    <vfs_file>E:\GitHub\SPARKprojets\firstspark\firstspark.gpr</vfs_file>
+    <file_marker column=" 1" line=" 1" >
+      <vfs_project>E:\GitHub\SPARKprojets\firstspark\firstspark.gpr</vfs_project>
+      <vfs_file>E:\GitHub\SPARKprojets\firstspark\src\simplestack.ads</vfs_file>
+    </file_marker>
+    <file_marker current="true" column=" 1" line=" 1" >
+      <vfs_project>E:\GitHub\SPARKprojets\firstspark\firstspark.gpr</vfs_project>
+      <vfs_file>E:\GitHub\SPARKprojets\firstspark\src\simplestack.adb</vfs_file>
+    </file_marker>
+  </Project>
+  <Project >
+    <vfs_file >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_file>
+    <file_marker column=" 1" line=" 1">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\main.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 1" line=" 4">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\main.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 1" line=" 1">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\main.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 4" line=" 23">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\main.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 16" line=" 3">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\simplestack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 29" line=" 25">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\simplestack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 16" line=" 3">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\simplestack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 24" line=" 2">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\simplestack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 6" line=" 3">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\main.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 1" line=" 1">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\simplestack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 4" line=" 13">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\simplestack.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 14" line=" 17">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\simplestack.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 41" line=" 1">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\simplestack.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 11" line=" 22">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\main.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 16" line=" 30">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\simplestack.ads</vfs_file>
+    </file_marker>
+    <file_marker current="true" column=" 6" line=" 18">
+      <vfs_project >E:\GitHub\SPARKprojets\firstspark.gpr</vfs_project>
+      <vfs_file >E:\GitHub\SPARKprojets\src\main.adb</vfs_file>
+    </file_marker>
+  </Project>
+</Locations>
