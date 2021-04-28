@@ -5,6 +5,7 @@ package body SimpleStack with SPARK_Mode is
       S.storage := (others => Default_Item);
    end Init;
 
+
    procedure Push(S : in out SimpleStack; I : in Item) is
    begin
       S.size := S.size + 1;

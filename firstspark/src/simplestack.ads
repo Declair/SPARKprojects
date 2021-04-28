@@ -8,15 +8,27 @@ package SimpleStack with SPARK_Mode is
 
    type SimpleStack is private;
 
+   -- get the size of the stack
    function Size(S: in SimpleStack) return Integer;
 
-   procedure Init(S : out SimpleStack);
+   -- get the element at pos
+   function Storage(S: in SimpleStack; Pos : in Integer) return Item with
+     Pre => (Pos >= 1 and Pos <= Max_Size);
+
+   procedure Init(S : out SimpleStack) with
+     Post => (Size(S) = 0);
 
    procedure Push(S : in out SimpleStack; I : in Item) with
-     Pre => (Size(S) /= Max_Size);
+     Pre => (Size(S) /= Max_Size),
+     Post => (Size(S) = Size(S'Old) + 1 and
+                  I = Storage(S, Size(S)) and
+             (for all J in 1..Size(S'Old) => Storage(S, J) = Storage(S'Old, J)));
 
    procedure Pop(S : in out SimpleStack; I : out Item) with
-     Pre => (Size(S) /= 0);
+     Pre => (Size(S) /= 0),
+     Post => (Size(S) = Size(S'Old) - 1 and
+                  I = Storage(S, Size(S'Old)) and
+             (for all J in 1..Max_Size => Storage(S, J) = Storage(S'Old, J)));
 
    private
    -- define SimpleStack type here
@@ -27,6 +39,10 @@ package SimpleStack with SPARK_Mode is
    end record;
 
    function Size(S: in SimpleStack) return Integer is
-      (S.size);
+     (S.size);
+
+   function Storage(S: in SimpleStack; Pos : in Integer)
+                    return Item is
+      (S.storage(Pos));
 
 end SimpleStack;

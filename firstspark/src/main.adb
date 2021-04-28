@@ -23,4 +23,10 @@ begin
 
    Ada.Integer_Text_IO.Put(J);
    Ada.Integer_Text_IO.Put(I);
+
+   -- overflow might occur here, fix it by adding conditions in SimpleStack
+   Ada.Integer_Text_IO.Put(I-J);
+
+   Ada.Text_IO.New_Line;
+   Ada.Integer_Text_IO.Put(SS.Size(S));
 end Main;
