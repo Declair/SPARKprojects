@@ -1,3 +1,0 @@
-main.adb:22:11: warning: unused assignment to "S"[#0]
-simplestack.adb:10:24: medium: range check might fail, in instantiation at main.adb:7 (e.g. when S = (storage => (others => 0), size => 100)) [possible explanation: subprogram at simplestack.ads:13 should mention S in a precondition][#1]
-simplestack.adb:16:23: medium: array index check might fail, in instantiation at main.adb:7 [possible explanation: subprogram at simplestack.ads:15 should mention S in a precondition][#2]

@@ -1,5 +1,0 @@
-main.adb:18:06: medium: precondition might fail, cannot prove Size(S) /= Max_Size (e.g. when S = (storage => (others => 0), size => 0)) [possible explanation: call at line 16 should mention S (for argument S) in a postcondition][#1]
-main.adb:19:06: medium: precondition might fail, cannot prove Size(S) /= Max_Size (e.g. when S = (storage => (others => 0), size => 0)) [possible explanation: call at line 18 should mention S (for argument S) in a postcondition][#2]
-main.adb:21:06: medium: precondition might fail, cannot prove Size(S) /= 0 (e.g. when S = (storage => (others => 0), size => 0)) [possible explanation: call at line 19 should mention S (for argument S) in a postcondition][#3]
-main.adb:22:06: medium: precondition might fail, cannot prove Size(S) /= 0 (e.g. when S = (storage => (others => 0), size => 0)) [possible explanation: call at line 21 should mention S (for argument S) in a postcondition][#4]
-main.adb:22:11: warning: unused assignment to "S"[#0]
