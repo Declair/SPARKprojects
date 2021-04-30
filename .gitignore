@@ -4,3 +4,7 @@
 # Ada Library Information
 *.ali
 *.TMP
+
+# obj folder
+*/obj/*
+!*/obj/aaa.txt
