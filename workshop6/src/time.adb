@@ -18,6 +18,7 @@ package body Time is
          Time.Minute := 0;
          if Time.Hour = 23 then
             Time.Hour := 0;
+            Date.Increment(Time.TDate);
          else
             Time.Hour := Time.Hour + 1;
          end if;
