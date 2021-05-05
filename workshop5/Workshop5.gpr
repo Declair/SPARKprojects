@@ -4,5 +4,5 @@ project Workshop5 is
    for Object_Dir use "obj";
    for Main use ("main.adb", "wordcount.adb");
 
-end Workshops;
+end Workshop5;
 
