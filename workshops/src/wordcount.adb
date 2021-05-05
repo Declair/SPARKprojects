@@ -24,6 +24,7 @@ procedure WordCount is
    -- The number of characters and words
    NumChars : Integer := 0;
    NumWords : Integer := 0;
+   Flag     : Integer := 0;
 
    -- a stack for putting words into
    St : StringStack.Stack;
@@ -33,38 +34,47 @@ begin
    Get(Ch);
    Word := ASU.To_Unbounded_String("");
 
+   -- the input is terminated by a '#'
    while (Ch /= '#') loop
 
       NumChars := NumChars + 1;
 
+      -- Ada.Characters.Latin_1.HT is 'tab'
       if Ch = ' ' or Ch = Ada.Characters.Latin_1.HT then
-         while Ch = ' ' or Ch = Ada.Characters.Latin_1.HT loop
-            Get(Ch);
-         end loop;
-
-         NumWords := NumWords + 1;
-         St.Push(Word);
-         Put(ASU.To_String(Word));
-         New_Line;
-         Word := ASU.To_Unbounded_String("");
+         if Flag = 1 then
+            -- end of a word
+            St.Push(Word);
+            NumWords := NumWords + 1;
+            Word := ASU.To_Unbounded_String("");
+         end if;
+         Flag := 0;
 
       else
+         Flag := 1;
          Word := Word & Ch;
-         Get(Ch);
       end if;
 
-
-
+      Get(Ch);
 
    end loop;
 
    -- push the terminating word
-   NumWords := NumWords + 1;
-   St.Push(Word);
+   if Flag = 1 then
+      St.Push(Word);
+      NumWords := NumWords + 1;
+   end if;
 
+   Put("Number of Words     : ");
    Ada.Integer_Text_IO.Put(NumWords);
    New_Line;
+   Put("Number of Characters: ");
    Ada.Integer_Text_IO.Put(NumChars);
    New_Line;
+   Put("Words in reverse order:"); New_Line;
+   while NumWords > 0 loop
+      St.Pop(Word);
+      Put(ASU.To_String(Word) & ' ');
+      NumWords := NumWords - 1;
+   end loop;
 
 end WordCount;
