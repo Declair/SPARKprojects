@@ -6,10 +6,10 @@ with DivMod;
 
 
 procedure Main with SPARK_Mode is
-   K : Natural;
-   R : Natural;
-   X : Integer;
-   N : Integer;
+   K : Natural;  -- quotient
+   R : Natural;  -- remainder
+   X : Integer;  -- dividend
+   N : Integer;  -- divisor
 begin
    Put_Line("Compute the result and remainder of X/N, via repeated subtraction.");
    Put_Line("The result and remainder are numbers K and R where X = K * N + R and R < N");
@@ -34,7 +34,7 @@ begin
 
       -- secondly K is not lower than X/N
       pragma Assert (if K < Integer'Last and then Integer'Last / N > K + 1 then
-                        N * (K + 1) > X);
+      --                   N * (K + 1) > X);
       pragma Assert (X/N <= K);
 
       -- therefore K is exactly equal to X/N
