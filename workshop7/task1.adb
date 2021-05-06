@@ -7,6 +7,7 @@ is
       I, J : Integer;
    begin
       if Ok then
+         J := 293;
          I := 0;
          J := 0;
       end if;
