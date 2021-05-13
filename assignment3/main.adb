@@ -5,6 +5,7 @@ with VariableStore;
 with MyCommandLine;
 with MyString;
 with MyStringTokeniser;
+with SimpleStack;
 with PIN;
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
@@ -18,6 +19,7 @@ procedure Main is
    PIN2  : PIN.PIN := PIN.From_String("1234");
    package Lines is new MyString(Max_MyString_Length => 2048);
    S  : Lines.MyString;
+   package SS is new SimpleStack(Max_Size => 512 ,Item => Integer, Default_Item => 0);
 begin
 
    Put(MyCommandLine.Command_Name); Put_Line(" is running!");
@@ -92,6 +94,23 @@ begin
    Put_Line("2 ** 32 is too big to fit into an Integer...");
    Put_Line("Hence when trying to parse it from a string, it is treated as 0:");
    Put(StringToInteger.From_String("2147483648")); New_Line;
+   
+   declare
+      S : SS.SimpleStack;
+      I : Integer;
+      J : Integer;
+   begin
+      SS.Init(S);   
+      SS.Push(S,5);   
+      SS.Push(S,6);   
+      SS.Pop(S,I); -- I should hold 6   
+      SS.Pop(S,J); -- J should hold 5
+      
+      Put(I);New_Line;Put(J);
+      SS.Pop(S,I);
+      Put("end");
+   end;
+   
    
       
 end Main;
