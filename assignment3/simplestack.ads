@@ -10,6 +10,8 @@ package SimpleStack with SPARK_Mode is
 
    function Size(S : in SimpleStack) return Integer;
 
+   function Capability return Integer;
+
    function Storage(S : in SimpleStack; Pos : in Integer) return Item with
      Pre => (Pos >= 1 and Pos <= Max_Size);
 
@@ -38,6 +40,9 @@ package SimpleStack with SPARK_Mode is
 
    function Size(S : in SimpleStack) return Integer is
      (S.size);
+
+   function Capability return Integer is
+      (Max_Size);
 
    function Storage(S : in SimpleStack; Pos : in Integer) return Item is
      (S.storage(Pos));
