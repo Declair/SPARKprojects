@@ -18,4 +18,9 @@ package body SimpleStack with SPARK_Mode is
       S.size := S.size - 1;
    end Pop;
 
+   procedure Pop_Discard(S : in out SimpleStack) is
+   begin
+      S.size := S.size - 1;
+   end Pop_Discard;
+
 end SimpleStack;

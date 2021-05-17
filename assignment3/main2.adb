@@ -12,19 +12,366 @@ with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
 
 with Ada.Long_Long_Integer_Text_IO;
 
+with Ada.Containers; use Ada.Containers;
+
 -- with GNAT.OS_Lib;
 
 procedure main2 is
+   LOCKED : constant Integer := 0;
+   UNLOCKED : constant Integer := 1;
    VAR_DB : VariableStore.Database;
-   --VAR : VariableStore.Variable;
    MASTER_PIN  : PIN.PIN := PIN.From_String("1234");
-   INPUT_PIN  : PIN.PIN;
    package Lines is new MyString(Max_MyString_Length => 2048);
-   S  : Lines.MyString;
-   package SS is new SimpleStack(Max_Size => 512 ,Item => Integer, Default_Item => 0);
-   STACK : SS.SimpleStack;
+   T : MyStringTokeniser.TokenArray(1..5) := (others => (Start => 1, Length => 0));
+   package OprandStack is new SimpleStack(Max_Size => 512, Item => Integer, Default_Item => 0);
+   STACK : OprandStack.SimpleStack;
    --OPRAND : Integer;
-   STATE : Integer := 0;  -- 0 == locked, 1 == unlocked
+   STATE : Integer := Locked;
+   INVALID : Integer := 0;
+   
+   procedure Execute is
+      S  : Lines.MyString;
+      NumTokens : Natural;
+   begin
+      Lines.Get_Line(S);
+      MyStringTokeniser.Tokenise(Lines.To_String(S),T,NumTokens);
+      -- Put("You entered "); Put(NumTokens); Put_Line(" tokens.");
+      
+      if NumTokens = 0 then
+         return;
+      end if;
+      
+      if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "unlock" then
+         if STATE = UNLOCKED then
+            return;
+         end if;
+         
+         if NumTokens /= 2 then
+            INVALID := 1;
+            Put_Line("Expect 2 arguments.");
+            return;
+         end if;
+         
+         declare
+            Str : String := Lines.To_String(Lines.Substring(S,T(2).Start,T(2).Start+T(2).Length-1));
+         begin
+            if not (Str'Length = 4 and
+              (for all I in Str'Range => Str(I) >= '0' and Str(I) <= '9')) then
+               -- INVALID := 1;
+               Put_Line("Invalid PIN");
+               return;
+            end if;
+            
+            if PIN."="(MASTER_PIN, PIN.From_String(Str)) then
+               STATE := UNLOCKED;
+            else
+               -- try to unlock with wrong PIN
+               return;
+            end if;
+         end;
+               
+      end if;
+      
+      if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "lock" then
+         if STATE = LOCKED then
+            return;
+         end if;
+         
+         if NumTokens /= 2 then
+            INVALID := 1;
+            Put_Line("Expect 2 arguments.");
+            return;
+         end if;
+         
+         declare
+            Str : String := Lines.To_String(Lines.Substring(S,T(2).Start,T(2).Start+T(2).Length-1));
+         begin
+            if not (Str'Length = 4 and
+              (for all I in Str'Range => Str(I) >= '0' and Str(I) <= '9')) then
+               -- INVALID := 1;
+               Put_Line("Invalid PIN");
+               return;
+            end if;
+            
+            STATE := LOCKED;
+            MASTER_PIN := PIN.From_String(Str);
+         end;
+      end if;
+      
+      if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "load" then
+         if STATE = LOCKED then
+            return;
+         end if;
+         
+         if NumTokens /= 2 then
+            INVALID := 1;
+            Put_Line("Expect 2 arguments.");
+            return;
+         end if;
+         
+         declare
+            Str : String := Lines.To_String(Lines.Substring(S,T(2).Start,T(2).Start+T(2).Length-1));
+            
+         begin
+            if Str'Length > VariableStore.Max_Variable_Length then
+               Put_Line("The length of the variable is too long!");
+               return;
+            end if;
+            
+            if OprandStack.Size(STACK) >= OprandStack.Capability then
+               Put_Line("The stack is full!");
+               return;
+            end if;
+            
+            declare
+               VAR : VariableStore.Variable := VariableStore.From_String(Str);
+            begin
+               Put("Looking up "); Put_Line(Str);
+            
+               if not VariableStore.Has_Variable(VAR_DB, VAR) then
+                  Put_Line("Entry not found!");
+                  return;
+               end if;
+               OprandStack.Push(STACK, VariableStore.Get(VAR_DB, VAR));
+            end;
+            
+         end;
+         
+      end if;
+      
+      if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "store" then
+         if STATE = LOCKED then
+            return;
+         end if;
+         
+         if NumTokens /= 2 then
+            INVALID := 1;
+            Put_Line("Expect 2 arguments.");
+            return;
+         end if;
+         
+         declare
+            Str : String := Lines.To_String(Lines.Substring(S,T(2).Start,T(2).Start+T(2).Length-1));
+         begin
+            if OprandStack.Size(STACK) = 0 then
+               Put_Line("The stack is empty!");
+               return;
+            end if;
+         
+            if Str'Length > VariableStore.Max_Variable_Length then
+               Put_Line("The length of the variable is too long!");
+               return;
+            end if;
+            
+            declare
+               VAR : VariableStore.Variable := VariableStore.From_String(Str);
+               I : Integer;
+            begin
+               if not (VariableStore.Length(VAR_DB) < VariableStore.Max_Entries or
+                      VariableStore.Has_Variable(VAR_DB, VAR)) then
+                  Put_Line("The variable database is full.");
+                  return;
+               end if;
+               OprandStack.Pop(STACK, I);
+               VariableStore.Put(VAR_DB, VAR, I);
+            end;
+            
+         end;
+         
+      end if;
+      
+      if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "remove" then
+         if STATE = LOCKED then
+            return;
+         end if;
+         
+         if NumTokens /= 2 then
+            INVALID := 1;
+            Put_Line("Expect 2 arguments.");
+            return;
+         end if;
+         
+         declare
+            Str : String := Lines.To_String(Lines.Substring(S,T(2).Start,T(2).Start+T(2).Length-1));
+         begin
+            if Str'Length > VariableStore.Max_Variable_Length then
+               Put_Line("The length of the variable is too long!");
+               return;
+            end if;
+            
+            declare
+               VAR : VariableStore.Variable := VariableStore.From_String(Str);
+            begin
+               if VariableStore.Has_Variable(VAR_DB, VAR) then
+                  VariableStore.Remove(VAR_DB, VAR);
+               end if;
+            end;
+            
+         end;
+      end if;
+      
+      if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "list" then
+         if STATE = LOCKED then
+            return;
+         end if;
+         
+         if NumTokens /= 1 then
+            INVALID := 1;
+            Put_Line("Expect 1 arguments.");
+            return;
+         end if;
+         
+         VariableStore.Print(VAR_DB);
+      end if;
+      
+      if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "push" then
+         if STATE = LOCKED then
+            return;
+         end if;
+         
+         if NumTokens /= 2 then
+            INVALID := 1;
+            Put_Line("Expect 2 arguments.");
+            return;
+         end if;
+         
+         if OprandStack.Size(STACK) >= OprandStack.Capability then
+            Put_Line("The stack is full!");
+            return;
+         end if;
+         
+         declare
+            Str : String := Lines.To_String(Lines.Substring(S,T(2).Start,T(2).Start+T(2).Length-1));
+         begin
+            OprandStack.Push(STACK, StringToInteger.From_String(Str));
+         end;
+         
+      end if;
+      
+      if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "pop" then
+         if STATE = LOCKED then
+            return;
+         end if;
+         
+         if NumTokens /= 1 then
+            INVALID := 1;
+            Put_Line("Expect 1 arguments.");
+            return;
+         end if;
+         
+         if OprandStack.Size(STACK) = 0 then
+            Put_Line("The stack is empty!");
+            return;
+         end if;
+         
+         OprandStack.Pop_Discard(STACK);
+         
+      end if;
+      
+      if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "+" then
+         if STATE = LOCKED then
+            return;
+         end if;
+         
+         if NumTokens /= 1 then
+            INVALID := 1;
+            Put_Line("Expect 1 arguments.");
+            return;
+         end if;
+         
+         if OprandStack.Size(STACK) < 2 then
+            Put_Line("Add from insufficient stack!");
+            return;
+         end if;
+         
+         declare
+            I : Integer;
+            J : Integer;
+         begin
+            OprandStack.Pop(STACK, I);
+            OprandStack.Pop(STACK, J);
+            if (I < 0 and then J >= Integer'First - I) or 
+              (I >= 0 and then J <= Integer'Last - I) then
+               OprandStack.Push(STACK, I + J);
+            else
+               Put_Line("Overflow will occur when doing addition!");
+               INVALID := 1;
+               return;
+            end if;
+         end;
+         
+      end if;
+      
+      if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "-" then
+         if STATE = LOCKED then
+            return;
+         end if;
+         
+         if NumTokens /= 1 then
+            INVALID := 1;
+            Put_Line("Expect 1 arguments.");
+            return;
+         end if;
+         
+         if OprandStack.Size(STACK) < 2 then
+            Put_Line("Sub from insufficient stack!");
+            return;
+         end if;
+         
+         declare
+            I : Integer;
+            J : Integer;
+         begin
+            OprandStack.Pop(STACK, I);
+            OprandStack.Pop(STACK, J);
+            if (J > 0 and then I >= Integer'First + J) or 
+              (J <= 0 and then I <= Integer'Last + J) then
+               OprandStack.Push(STACK, I - J);
+            else
+               Put_Line("Overflow will occur when doing subtraction!");
+               INVALID := 1;
+               return;
+            end if;
+         end;
+         
+      end if;
+      
+      if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "*" then
+         if STATE = LOCKED then
+            return;
+         end if;
+         
+         if NumTokens /= 1 then
+            INVALID := 1;
+            Put_Line("Expect 1 arguments.");
+            return;
+         end if;
+         
+         if OprandStack.Size(STACK) < 2 then
+            Put_Line("Mul from insufficient stack!");
+            return;
+         end if;
+         
+         declare
+            I : Integer;
+            J : Integer;
+         begin
+            OprandStack.Pop(STACK, I);
+            OprandStack.Pop(STACK, J);
+            if (J > 0 and then I >= Integer'First + J) or 
+              (J <= 0 and then I <= Integer'Last + J) then
+               OprandStack.Push(STACK, I - J);
+            else
+               Put_Line("Overflow will occur when doing multiplication!");
+               INVALID := 1;
+               return;
+            end if;
+         end;
+         
+      end if;
+      
+   end Execute;
+   
 begin
    
    Put(MyCommandLine.Command_Name); Put_Line(" is running!");
@@ -50,16 +397,26 @@ begin
    VariableStore.Init(VAR_DB);
    Put_Line("Finish Initialising var database");
    
-   SS.Init(STACK);
+   OprandStack.Init(STACK);
    Put_Line("Finish Initialising oprand stack");
    
    while True loop
-      if STATE = 1 then
-         Put("unlocked> ");
-      else
+      if STATE = 0 then
          Put("locked> ");
+      else
+         Put("unlocked> ");
       end if;
-      Lines.Get_Line(S);
+--        Lines.Get_Line(S);
+--        MyStringTokeniser.Tokenise(Lines.To_String(S),T,NumTokens);
+--        Put("You entered "); Put(NumTokens); Put_Line(" tokens.");
+      
+      Execute;
+      
+      if INVALID = 1 then
+         return;
+      end if;
+      
+      
    end loop;
    
 end main2;

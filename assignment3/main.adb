@@ -94,6 +94,7 @@ begin
    Put_Line("2 ** 32 is too big to fit into an Integer...");
    Put_Line("Hence when trying to parse it from a string, it is treated as 0:");
    Put(StringToInteger.From_String("2147483648")); New_Line;
+   Put(StringToInteger.From_String("ass")); New_Line;
    
    declare
       S : SS.SimpleStack;
@@ -105,12 +106,12 @@ begin
       SS.Push(S,6);   
       SS.Pop(S,I); -- I should hold 6   
       SS.Pop(S,J); -- J should hold 5
-      
+      -- return;
       Put(I);New_Line;Put(J);
-      SS.Pop(S,I);
-      Put("end");
+      -- SS.Pop(S,I);
+      Put_Line("end");
    end;
    
-   
+   Put_Line("true end");
       
 end Main;
