@@ -12,9 +12,8 @@ with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
 
 with Ada.Long_Long_Integer_Text_IO;
 
-with Ada.Containers; use Ada.Containers;
+with Ada.Containers; use Ada.Containers;  -- to check if variable store is full
 
--- with GNAT.OS_Lib;
 
 procedure main2 is
    LOCKED : constant Integer := 0;
@@ -25,7 +24,6 @@ procedure main2 is
    T : MyStringTokeniser.TokenArray(1..5) := (others => (Start => 1, Length => 0));
    package OprandStack is new SimpleStack(Max_Size => 512, Item => Integer, Default_Item => 0);
    STACK : OprandStack.SimpleStack;
-   --OPRAND : Integer;
    STATE : Integer := Locked;
    INVALID : Integer := 0;
    
@@ -290,14 +288,13 @@ procedure main2 is
          begin
             OprandStack.Pop(STACK, I);
             OprandStack.Pop(STACK, J);
-            if (I < 0 and then J >= Integer'First - I) or 
-              (I >= 0 and then J <= Integer'Last - I) then
-               OprandStack.Push(STACK, I + J);
-            else
+            if not ((I < 0 and then J >= Integer'First - I) or 
+              (I >= 0 and then J <= Integer'Last - I)) then
                Put_Line("Overflow will occur when doing addition!");
                INVALID := 1;
                return;
             end if;
+            OprandStack.Push(STACK, I + J);
          end;
          
       end if;
@@ -324,14 +321,13 @@ procedure main2 is
          begin
             OprandStack.Pop(STACK, I);
             OprandStack.Pop(STACK, J);
-            if (J > 0 and then I >= Integer'First + J) or 
-              (J <= 0 and then I <= Integer'Last + J) then
-               OprandStack.Push(STACK, I - J);
-            else
+            if not ((J > 0 and then I >= Integer'First + J) or 
+              (J <= 0 and then I <= Integer'Last + J)) then
                Put_Line("Overflow will occur when doing subtraction!");
                INVALID := 1;
                return;
             end if;
+            OprandStack.Push(STACK, I - J);
          end;
          
       end if;
@@ -358,14 +354,86 @@ procedure main2 is
          begin
             OprandStack.Pop(STACK, I);
             OprandStack.Pop(STACK, J);
-            if (J > 0 and then I >= Integer'First + J) or 
-              (J <= 0 and then I <= Integer'Last + J) then
-               OprandStack.Push(STACK, I - J);
-            else
+            -- (Integer'First / (-1)) will overflow
+            -- (Integer'First * (-1)) will overflow
+            if ((I > 0 and J > 0) and then I > Integer'Last / J) then
                Put_Line("Overflow will occur when doing multiplication!");
                INVALID := 1;
                return;
             end if;
+            if ((I < 0 and J < 0) and then I < Integer'Last / J) then
+               Put_Line("Overflow will occur when doing multiplication!");
+               INVALID := 1;
+               return;
+            end if;
+            if ((I < 0 and J > 0) and then I < Integer'First / J) then
+               Put_Line("Overflow will occur when doing multiplication!");
+               INVALID := 1;
+               return;
+            end if;
+            if ((I > 0 and J < 0) and then J < Integer'First / I) then
+               Put_Line("Overflow will occur when doing multiplication!");
+               INVALID := 1;
+               return;
+            end if;
+            
+            OprandStack.Push(STACK, I * J);
+         end;
+         
+      end if;
+      
+      if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "/" then
+         if STATE = LOCKED then
+            return;
+         end if;
+         
+         if NumTokens /= 1 then
+            INVALID := 1;
+            Put_Line("Expect 1 arguments.");
+            return;
+         end if;
+         
+         if OprandStack.Size(STACK) < 2 then
+            Put_Line("Div from insufficient stack!");
+            INVALID := 1;
+            return;
+         end if;
+         
+         declare
+            I : Integer;
+            J : Integer;
+         begin
+            OprandStack.Pop(STACK, I);
+            OprandStack.Pop(STACK, J);
+            
+            if J = 0 then
+               Put_Line("Cannot divide by zero");
+               INVALID := 1;
+               return;
+            end if;
+            
+            -- (Integer'First / (-1)) will overflow
+            if I = Integer'First and J = -1 then
+               Put_Line("Overflow will occur when doing division!");
+               INVALID := 1;
+               return;
+            end if;
+            
+            OprandStack.Push(STACK, (I / J));
+         end;
+      end if;
+      
+      -- For test only
+      if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "print" then
+         declare
+            I: Integer;
+         begin
+            if OprandStack.Size(STACK) = 0 then
+               return;
+            end if;
+            OprandStack.Pop(STACK, I);
+            Put(I);New_Line;
+            OprandStack.Push(STACK, I);
          end;
          
       end if;
@@ -374,7 +442,7 @@ procedure main2 is
    
 begin
    
-   Put(MyCommandLine.Command_Name); Put_Line(" is running!");
+   -- Put(MyCommandLine.Command_Name); Put_Line(" is running!");
    
    -- Receiving and setting master PIN from commandline argument
    if MyCommandLine.Argument_Count = 0 then
@@ -392,13 +460,13 @@ begin
          return;
       end if;
    end if;
-   Put_Line("Finish setting the initialise master PIN");
+   -- Put_Line("Finish setting the initialise master PIN");
    
    VariableStore.Init(VAR_DB);
-   Put_Line("Finish Initialising var database");
+   -- Put_Line("Finish Initialising var database");
    
    OprandStack.Init(STACK);
-   Put_Line("Finish Initialising oprand stack");
+   -- Put_Line("Finish Initialising oprand stack");
    
    while True loop
       if STATE = 0 then
@@ -406,9 +474,6 @@ begin
       else
          Put("unlocked> ");
       end if;
---        Lines.Get_Line(S);
---        MyStringTokeniser.Tokenise(Lines.To_String(S),T,NumTokens);
---        Put("You entered "); Put(NumTokens); Put_Line(" tokens.");
       
       Execute;
       
