@@ -30,6 +30,7 @@ package SimpleStack with SPARK_Mode is
               I = Storage(S,Size(S'Old)) and
                 (for all J in 1..Max_Size => Storage(S,J) = Storage(S'Old,J)));
 
+   -- discard the top element
    procedure Pop_Discard(S : in out SimpleStack) with
      Pre => (Size(S) /= 0),
      Post => (Size(S) = Size(S'Old) - 1);
