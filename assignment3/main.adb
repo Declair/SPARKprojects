@@ -5,8 +5,9 @@ with VariableStore;
 with MyCommandLine;
 with MyString;
 with MyStringTokeniser;
-with SimpleStack;
 with PIN;
+with OprandStack;
+with calculator;
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
 
@@ -16,15 +17,10 @@ with Ada.Containers; use Ada.Containers;  -- to check if variable store is full
 
 
 procedure main is
-   LOCKED : constant Integer := 0;
-   UNLOCKED : constant Integer := 1;
-   VAR_DB : VariableStore.Database;
+   MyCalculator : calculator.calculator;
    MASTER_PIN  : PIN.PIN := PIN.From_String("1234");
    package Lines is new MyString(Max_MyString_Length => 2048);
    T : MyStringTokeniser.TokenArray(1..5) := (others => (Start => 1, Length => 0));
-   package OprandStack is new SimpleStack(Max_Size => 512, Item => Integer, Default_Item => 0);
-   STACK : OprandStack.SimpleStack;
-   STATE : Integer := Locked;
    INVALID : Integer := 0;
    
    procedure Execute is
@@ -41,7 +37,7 @@ procedure main is
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "unlock" then
-         if STATE = UNLOCKED then
+         if MyCalculator.STATE = calculator.UNLOCKED then
             return;
          end if;
          
@@ -61,18 +57,16 @@ procedure main is
                return;
             end if;
             
-            if PIN."="(MASTER_PIN, PIN.From_String(Str)) then
-               STATE := UNLOCKED;
-            else
-               -- try to unlock with wrong PIN
-               return;
+            if MyCalculator.STATE = calculator.LOCKED then
+               calculator.Do_Unlock(MyCalculator, PIN.From_String(Str));
             end if;
+            
          end;
                
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "lock" then
-         if STATE = LOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.LOCKED then
             return;
          end if;
          
@@ -87,18 +81,19 @@ procedure main is
          begin
             if not (Str'Length = 4 and
               (for all I in Str'Range => Str(I) >= '0' and Str(I) <= '9')) then
-               -- INVALID := 1;
+               INVALID := 1;
                Put_Line("Invalid PIN");
                return;
             end if;
-            
-            STATE := LOCKED;
-            MASTER_PIN := PIN.From_String(Str);
+            if MyCalculator.STATE = calculator.UNLOCKED then
+               calculator.Do_Lock(MyCalculator, PIN.From_String(Str));
+            end if;
          end;
+         
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "load" then
-         if STATE = LOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.LOCKED then
             return;
          end if;
          
@@ -110,36 +105,30 @@ procedure main is
          
          declare
             Str : String := Lines.To_String(Lines.Substring(S,T(2).Start,T(2).Start+T(2).Length-1));
-            
          begin
             if Str'Length > VariableStore.Max_Variable_Length then
                Put_Line("The length of the variable is too long!");
                return;
             end if;
             
-            if OprandStack.Size(STACK) >= OprandStack.Capability then
+            if OprandStack.Size(MyCalculator.STACK) >= OprandStack.Capability then
                Put_Line("The stack is full!");
                return;
             end if;
             
-            declare
-               VAR : VariableStore.Variable := VariableStore.From_String(Str);
-            begin
-               Put("Looking up "); Put_Line(Str);
-            
-               if not VariableStore.Has_Variable(VAR_DB, VAR) then
-                  Put_Line("Entry not found!");
-                  return;
-               end if;
-               OprandStack.Push(STACK, VariableStore.Get(VAR_DB, VAR));
-            end;
-            
+            if MyCalculator.STATE = calculator.UNLOCKED then
+               declare
+                  VAR : VariableStore.Variable := VariableStore.From_String(Str);
+               begin
+                  calculator.Do_Load(MyCalculator, VAR);
+               end;
+            end if;
+                        
          end;
-         
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "store" then
-         if STATE = LOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.LOCKED then
             return;
          end if;
          
@@ -152,7 +141,7 @@ procedure main is
          declare
             Str : String := Lines.To_String(Lines.Substring(S,T(2).Start,T(2).Start+T(2).Length-1));
          begin
-            if OprandStack.Size(STACK) = 0 then
+            if OprandStack.Size(MyCalculator.STACK) = 0 then
                Put_Line("The stack is empty!");
                return;
             end if;
@@ -164,15 +153,15 @@ procedure main is
             
             declare
                VAR : VariableStore.Variable := VariableStore.From_String(Str);
-               I : Integer;
             begin
-               if not (VariableStore.Length(VAR_DB) < VariableStore.Max_Entries or
-                      VariableStore.Has_Variable(VAR_DB, VAR)) then
+               if not (VariableStore.Length(MyCalculator.VAR_DB) < VariableStore.Max_Entries or
+                      VariableStore.Has_Variable(MyCalculator.VAR_DB, VAR)) then
                   Put_Line("The variable database is full.");
                   return;
                end if;
-               OprandStack.Pop(STACK, I);
-               VariableStore.Put(VAR_DB, VAR, I);
+               if MyCalculator.STATE = calculator.UNLOCKED then
+                  calculator.Do_Store(MyCalculator, VAR);
+               end if;
             end;
             
          end;
@@ -180,7 +169,7 @@ procedure main is
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "remove" then
-         if STATE = LOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.LOCKED then
             return;
          end if;
          
@@ -198,19 +187,19 @@ procedure main is
                return;
             end if;
             
-            declare
-               VAR : VariableStore.Variable := VariableStore.From_String(Str);
-            begin
-               if VariableStore.Has_Variable(VAR_DB, VAR) then
-                  VariableStore.Remove(VAR_DB, VAR);
-               end if;
-            end;
-            
+            if MyCalculator.STATE = calculator.UNLOCKED then
+               declare
+                  VAR : VariableStore.Variable := VariableStore.From_String(Str);
+               begin
+                  calculator.Do_Remove(MyCalculator, VAR);
+               end;
+            end if;
+                       
          end;
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "list" then
-         if STATE = LOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.LOCKED then
             return;
          end if;
          
@@ -219,12 +208,14 @@ procedure main is
             Put_Line("Expect 1 arguments.");
             return;
          end if;
+         if MyCalculator.STATE = calculator.UNLOCKED then
+            VariableStore.Print(MyCalculator.VAR_DB);
+         end if;
          
-         VariableStore.Print(VAR_DB);
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "push" then
-         if STATE = LOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.LOCKED then
             return;
          end if;
          
@@ -234,21 +225,23 @@ procedure main is
             return;
          end if;
          
-         if OprandStack.Size(STACK) >= OprandStack.Capability then
+         if OprandStack.Size(MyCalculator.STACK) >= OprandStack.Capability then
             Put_Line("The stack is full!");
             return;
          end if;
          
-         declare
-            Str : String := Lines.To_String(Lines.Substring(S,T(2).Start,T(2).Start+T(2).Length-1));
-         begin
-            OprandStack.Push(STACK, StringToInteger.From_String(Str));
-         end;
-         
+         if MyCalculator.STATE = calculator.UNLOCKED then
+            declare
+               Str : String := Lines.To_String(Lines.Substring(S,T(2).Start,T(2).Start+T(2).Length-1));
+            begin
+               calculator.Do_Push(MyCalculator, StringToInteger.From_String(Str));
+            end;
+         end if;
+                  
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "pop" then
-         if STATE = LOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.LOCKED then
             return;
          end if;
          
@@ -258,17 +251,18 @@ procedure main is
             return;
          end if;
          
-         if OprandStack.Size(STACK) = 0 then
+         if OprandStack.Size(MyCalculator.STACK) = 0 then
             Put_Line("The stack is empty!");
             return;
          end if;
          
-         OprandStack.Pop_Discard(STACK);
-         
+         if MyCalculator.STATE = calculator.UNLOCKED then
+            calculator.Do_Pop(MyCalculator);
+         end if;
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "+" then
-         if STATE = LOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.LOCKED then
             return;
          end if;
          
@@ -278,30 +272,28 @@ procedure main is
             return;
          end if;
          
-         if OprandStack.Size(STACK) < 2 then
+         if OprandStack.Size(MyCalculator.STACK) < 2 then
             Put_Line("Add from insufficient stack!");
             return;
          end if;
          
-         declare
-            I : Integer;
-            J : Integer;
-         begin
-            OprandStack.Pop(STACK, I);
-            OprandStack.Pop(STACK, J);
-            if not ((I < 0 and then J >= Integer'First - I) or 
-              (I >= 0 and then J <= Integer'Last - I)) then
-               Put_Line("Overflow will occur when doing addition!");
-               INVALID := 1;
-               return;
-            end if;
-            OprandStack.Push(STACK, I + J);
-         end;
-         
+         if MyCalculator.STATE = calculator.UNLOCKED then
+            declare
+               Will_Overflow : Boolean;
+            begin
+               calculator.Do_Add(MyCalculator, Will_Overflow);
+               if Will_Overflow then
+                  INVALID := 1;
+                  Put_Line("Overflow will occur when doing addition!");
+                  return;
+               end if;
+            end;
+         end if;
+                  
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "-" then
-         if STATE = LOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.LOCKED then
             return;
          end if;
          
@@ -311,30 +303,27 @@ procedure main is
             return;
          end if;
          
-         if OprandStack.Size(STACK) < 2 then
+         if OprandStack.Size(MyCalculator.STACK) < 2 then
             Put_Line("Sub from insufficient stack!");
             return;
          end if;
          
-         declare
-            I : Integer;
-            J : Integer;
-         begin
-            OprandStack.Pop(STACK, I);
-            OprandStack.Pop(STACK, J);
-            if not ((J > 0 and then I >= Integer'First + J) or 
-              (J <= 0 and then I <= Integer'Last + J)) then
-               Put_Line("Overflow will occur when doing subtraction!");
-               INVALID := 1;
-               return;
-            end if;
-            OprandStack.Push(STACK, I - J);
-         end;
-         
+         if MyCalculator.STATE = calculator.UNLOCKED then
+            declare
+               Will_Overflow : Boolean;
+            begin
+               calculator.Do_Substract(MyCalculator, Will_Overflow);
+               if Will_Overflow then
+                  INVALID := 1;
+                  Put_Line("Overflow will occur when doing subtraction!");
+                  return;
+               end if;
+            end;
+         end if;
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "*" then
-         if STATE = LOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.LOCKED then
             return;
          end if;
          
@@ -344,50 +333,28 @@ procedure main is
             return;
          end if;
          
-         if OprandStack.Size(STACK) < 2 then
+         if OprandStack.Size(MyCalculator.STACK) < 2 then
             Put_Line("Mul from insufficient stack!");
             return;
          end if;
          
-         declare
-            I : Integer;
-            J : Integer;
-         begin
-            OprandStack.Pop(STACK, I);
-            OprandStack.Pop(STACK, J);
-            -- (Integer'First / (-1)) will overflow
-            -- (Integer'First * (-1)) will overflow
-            if ((I > 0 and J > 0) and then I > Integer'Last / J) then
-               Put_Line("Overflow will occur when doing multiplication!");
-               INVALID := 1;
-               return;
-            end if;
-            if ((I < 0 and J < 0) and then I < Integer'Last / J) then
-               Put_Line("Overflow will occur when doing multiplication!");
-               INVALID := 1;
-               return;
-            end if;
-            if ((I < 0 and J > 0) and then I < Integer'First / J) then
-               Put_Line("Overflow will occur when doing multiplication!");
-               INVALID := 1;
-               return;
-            end if;
-            if ((I > 0 and J < 0) and then J < Integer'First / I) then
-               Put_Line("Overflow will occur when doing multiplication!");
-               INVALID := 1;
-               return;
-            end if;
-            
-            pragma Assert (I * J >= Integer'First);
-            pragma Assert (I * J <= Integer'Last);
-            
-            OprandStack.Push(STACK, I * J);
-         end;
-         
+         if MyCalculator.STATE = calculator.UNLOCKED then
+            declare
+               Will_Overflow : Boolean;
+            begin
+               calculator.Do_Multiply(MyCalculator, Will_Overflow);
+               if Will_Overflow then
+                  INVALID := 1;
+                  Put_Line("Overflow will occur when doing multiplication!");
+                  return;
+               end if;
+            end;
+         end if;
+                  
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "/" then
-         if STATE = LOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.LOCKED then
             return;
          end if;
          
@@ -397,34 +364,24 @@ procedure main is
             return;
          end if;
          
-         if OprandStack.Size(STACK) < 2 then
+         if OprandStack.Size(MyCalculator.STACK) < 2 then
             Put_Line("Div from insufficient stack!");
-            INVALID := 1;
             return;
          end if;
          
-         declare
-            I : Integer;
-            J : Integer;
-         begin
-            OprandStack.Pop(STACK, I);
-            OprandStack.Pop(STACK, J);
-            
-            if J = 0 then
-               Put_Line("Cannot divide by zero");
-               INVALID := 1;
-               return;
-            end if;
-            
-            -- (Integer'First / (-1)) will overflow
-            if I = Integer'First and J = -1 then
-               Put_Line("Overflow will occur when doing division!");
-               INVALID := 1;
-               return;
-            end if;
-            
-            OprandStack.Push(STACK, (I / J));
-         end;
+         if MyCalculator.STATE = calculator.UNLOCKED then
+            declare
+               Will_Overflow : Boolean;
+            begin
+               calculator.Do_Divide(MyCalculator, Will_Overflow);
+               if Will_Overflow then
+                  INVALID := 1;
+                  Put_Line("Dividing by zero or Overflow will occur when doing division!");
+                  return;
+               end if;
+            end;
+         end if;
+         
       end if;
       
       -- For test only
@@ -432,12 +389,12 @@ procedure main is
          declare
             I: Integer;
          begin
-            if OprandStack.Size(STACK) = 0 then
+            if OprandStack.Size(MyCalculator.STACK) = 0 then
                return;
             end if;
-            OprandStack.Pop(STACK, I);
+            OprandStack.Pop(MyCalculator.STACK, I);
             Put(I);New_Line;
-            OprandStack.Push(STACK, I);
+            OprandStack.Push(MyCalculator.STACK, I);
          end;
          
       end if;
@@ -466,14 +423,10 @@ begin
    end if;
    -- Put_Line("Finish setting the initialise master PIN");
    
-   VariableStore.Init(VAR_DB);
-   -- Put_Line("Finish Initialising var database");
-   
-   OprandStack.Init(STACK);
-   -- Put_Line("Finish Initialising oprand stack");
+   calculator.Init(MyCalculator, MASTER_PIN);
    
    while True loop
-      if STATE = 0 then
+      if calculator.Current_State(MyCalculator) = calculator.LOCKED then
          Put("locked> ");
       else
          Put("unlocked> ");
