@@ -1,5 +1,3 @@
-pragma SPARK_Mode (On);
-
 with VariableStore;
 with SimpleStack;
 with OprandStack;

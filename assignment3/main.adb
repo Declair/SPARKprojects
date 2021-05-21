@@ -1,3 +1,7 @@
+-- Names:
+-- 1061668 Jihao Deng
+-- 1054053 Qiqi Hu
+
 pragma SPARK_Mode (On);
 
 with StringToInteger;
@@ -43,7 +47,7 @@ procedure main is
          
          if NumTokens /= 2 then
             INVALID := 1;
-            Put_Line("Expect 2 arguments.");
+            Put("Expect 2 arguments but instead found ");Put_Line(NumTokens'Image);
             return;
          end if;
          
@@ -52,8 +56,8 @@ procedure main is
          begin
             if not (Str'Length = 4 and
               (for all I in Str'Range => Str(I) >= '0' and Str(I) <= '9')) then
-               -- INVALID := 1;
-               Put_Line("Invalid PIN");
+               INVALID := 1;
+               Put_Line("Invalid PIN, it must be 4-digit strings between 0000 and 9999");
                return;
             end if;
             
@@ -62,7 +66,7 @@ procedure main is
             end if;
             
          end;
-               
+         return; 
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "lock" then
@@ -72,7 +76,7 @@ procedure main is
          
          if NumTokens /= 2 then
             INVALID := 1;
-            Put_Line("Expect 2 arguments.");
+            Put("Expect 2 arguments but instead found ");Put_Line(NumTokens'Image);
             return;
          end if;
          
@@ -89,7 +93,7 @@ procedure main is
                calculator.Do_Lock(MyCalculator, PIN.From_String(Str));
             end if;
          end;
-         
+         return;
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "load" then
@@ -99,7 +103,7 @@ procedure main is
          
          if NumTokens /= 2 then
             INVALID := 1;
-            Put_Line("Expect 2 arguments.");
+            Put("Expect 2 arguments but instead found ");Put_Line(NumTokens'Image);
             return;
          end if;
          
@@ -122,9 +126,9 @@ procedure main is
                begin
                   calculator.Do_Load(MyCalculator, VAR);
                end;
-            end if;
-                        
+            end if;         
          end;
+         return;
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "store" then
@@ -134,7 +138,7 @@ procedure main is
          
          if NumTokens /= 2 then
             INVALID := 1;
-            Put_Line("Expect 2 arguments.");
+            Put("Expect 2 arguments but instead found ");Put_Line(NumTokens'Image);
             return;
          end if;
          
@@ -165,7 +169,7 @@ procedure main is
             end;
             
          end;
-         
+         return;
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "remove" then
@@ -175,7 +179,7 @@ procedure main is
          
          if NumTokens /= 2 then
             INVALID := 1;
-            Put_Line("Expect 2 arguments.");
+            Put("Expect 2 arguments but instead found ");Put_Line(NumTokens'Image);
             return;
          end if;
          
@@ -193,9 +197,9 @@ procedure main is
                begin
                   calculator.Do_Remove(MyCalculator, VAR);
                end;
-            end if;
-                       
+            end if;         
          end;
+         return;
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "list" then
@@ -205,13 +209,13 @@ procedure main is
          
          if NumTokens /= 1 then
             INVALID := 1;
-            Put_Line("Expect 1 arguments.");
+            Put("Expect 1 argument but instead found ");Put_Line(NumTokens'Image);
             return;
          end if;
          if MyCalculator.STATE = calculator.UNLOCKED then
             VariableStore.Print(MyCalculator.VAR_DB);
          end if;
-         
+         return;
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "push" then
@@ -221,7 +225,7 @@ procedure main is
          
          if NumTokens /= 2 then
             INVALID := 1;
-            Put_Line("Expect 2 arguments.");
+            Put("Expect 2 arguments but instead found ");Put_Line(NumTokens'Image);
             return;
          end if;
          
@@ -237,7 +241,7 @@ procedure main is
                calculator.Do_Push(MyCalculator, StringToInteger.From_String(Str));
             end;
          end if;
-                  
+         return;
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "pop" then
@@ -247,7 +251,7 @@ procedure main is
          
          if NumTokens /= 1 then
             INVALID := 1;
-            Put_Line("Expect 1 arguments.");
+            Put("Expect 1 argument but instead found ");Put_Line(NumTokens'Image);
             return;
          end if;
          
@@ -259,6 +263,7 @@ procedure main is
          if MyCalculator.STATE = calculator.UNLOCKED then
             calculator.Do_Pop(MyCalculator);
          end if;
+         return;
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "+" then
@@ -268,7 +273,7 @@ procedure main is
          
          if NumTokens /= 1 then
             INVALID := 1;
-            Put_Line("Expect 1 arguments.");
+            Put("Expect 2 argument but instead found ");Put_Line(NumTokens'Image);
             return;
          end if;
          
@@ -289,7 +294,7 @@ procedure main is
                end if;
             end;
          end if;
-                  
+         return;
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "-" then
@@ -299,7 +304,7 @@ procedure main is
          
          if NumTokens /= 1 then
             INVALID := 1;
-            Put_Line("Expect 1 arguments.");
+            Put("Expect 1 argument but instead found ");Put_Line(NumTokens'Image);
             return;
          end if;
          
@@ -320,6 +325,7 @@ procedure main is
                end if;
             end;
          end if;
+         return;
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "*" then
@@ -329,7 +335,7 @@ procedure main is
          
          if NumTokens /= 1 then
             INVALID := 1;
-            Put_Line("Expect 1 arguments.");
+            Put("Expect 1 argument but instead found ");Put_Line(NumTokens'Image);
             return;
          end if;
          
@@ -350,7 +356,7 @@ procedure main is
                end if;
             end;
          end if;
-                  
+         return;
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "/" then
@@ -360,7 +366,7 @@ procedure main is
          
          if NumTokens /= 1 then
             INVALID := 1;
-            Put_Line("Expect 1 arguments.");
+            Put("Expect 1 argument but instead found ");Put_Line(NumTokens'Image);
             return;
          end if;
          
@@ -381,23 +387,12 @@ procedure main is
                end if;
             end;
          end if;
-         
+         return;
       end if;
       
-      -- For test only
-      if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "print" then
-         declare
-            I: Integer;
-         begin
-            if OprandStack.Size(MyCalculator.STACK) = 0 then
-               return;
-            end if;
-            OprandStack.Pop(MyCalculator.STACK, I);
-            Put(I);New_Line;
-            OprandStack.Push(MyCalculator.STACK, I);
-         end;
-         
-      end if;
+      -- if reach here, the program must have received an invalid command
+      Put_Line("Unrecognised command.");
+      INVALID := 1;
       
    end Execute;
    
@@ -407,7 +402,6 @@ begin
    
    -- Receiving and setting master PIN from commandline argument
    if MyCommandLine.Argument_Count = 0 then
-      -- TODO: make sure what to do if the program is invoked with no argument
       Put_Line("No initial master PIN was provided, use the default PIN 1234");
    elsif MyCommandLine.Argument_Count >= 1 then
       
@@ -421,7 +415,6 @@ begin
          return;
       end if;
    end if;
-   -- Put_Line("Finish setting the initialise master PIN");
    
    calculator.Init(MyCalculator, MASTER_PIN);
    
@@ -435,6 +428,7 @@ begin
       Execute;
       
       if INVALID = 1 then
+         -- recieved invalid input 
          return;
       end if;
       

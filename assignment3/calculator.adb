@@ -1,5 +1,3 @@
-pragma SPARK_Mode (On);
-
 with VariableStore;
 with MyCommandLine;
 with OprandStack;
