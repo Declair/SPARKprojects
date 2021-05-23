@@ -397,7 +397,6 @@ procedure main is
    end Execute;
    
 begin
-   
    -- Put(MyCommandLine.Command_Name); Put_Line(" is running!");
    
    -- Receiving and setting master PIN from commandline argument
@@ -416,6 +415,8 @@ begin
       end if;
    end if;
    
+   -- Initialising the calculater, including setting initial master PIN, 
+   -- creating variable store database and stack
    calculator.Init(MyCalculator, MASTER_PIN);
    
    while True loop
@@ -428,7 +429,7 @@ begin
       Execute;
       
       if INVALID = 1 then
-         -- recieved invalid input 
+         -- recieved invalid input, exit the Main procedure
          return;
       end if;
       

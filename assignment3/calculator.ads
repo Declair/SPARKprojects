@@ -35,7 +35,8 @@ package calculator with SPARK_Mode is
    
    procedure Do_Unlock(C : in out calculator; Provided_PIN : in PIN.PIN) with
      Pre => (C.STATE = LOCKED), 
-     Post => (if PIN."="(C.MASTER_PIN, Provided_PIN) then C.STATE = UNLOCKED);
+     Post => (if PIN."="(C.MASTER_PIN, Provided_PIN) then C.STATE = UNLOCKED
+             else C.STATE = LOCKED);
    
    procedure Do_Lock(C : in out calculator; Provided_PIN : in PIN.PIN) with
      Pre => (C.STATE = UNLOCKED),

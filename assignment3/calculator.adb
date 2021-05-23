@@ -116,10 +116,6 @@ package body calculator with SPARK_Mode is
          return;
       end if;
 
-      --pragma Assert (if I > 0 and J < 0 then I * J >= Integer'First);
-      --pragma Assert (if I < 0 and J > 0 then I * J >= Integer'First);
-      --pragma Assert (if I > 0 and J > 0 then I * J <= Integer'Last);
-      --pragma Assert (if I < 0 and J < 0 then I * J <= Integer'Last);
       Will_Overflow := False;
       OprandStack.Push(C.STACK, I * J);
    end;
@@ -142,7 +138,6 @@ package body calculator with SPARK_Mode is
          return;
       end if;
 
-      pragma Assert (if I = 0 then I / J = 0);
       Will_Overflow :=  False;
       OprandStack.Push(C.STACK, (I / J));
    end;
