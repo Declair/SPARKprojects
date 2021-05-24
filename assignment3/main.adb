@@ -2,6 +2,39 @@
 -- 1061668 Jihao Deng
 -- 1054053 Qiqi Hu
 
+-- Task 4:
+-- In our implementation, performing each operations is written in a procedure
+-- in calculator package, such as Do_Add, Do_Push.
+
+-- 1. The arithmetic operations, push, pop, load, store, remove, and lock can
+-- only ever be performed when the calculator is in the unlocked state:
+-- The preconditions of these operations' procedures say that "C.STATE = UNLOCKED", 
+-- which means these operations can only be performed in unlocked state. 
+
+-- 2. The Unlock operation can only ever be performed when the calculator is in 
+-- the locked state:
+-- The precondition of procedure Do_Unlock in calculator.ads "C.STATE = LOCKED". 
+-- It means unlock operation can only be performed in locked state.
+
+-- 3. The Lock operation, when it is performed, should update the master PIN 
+-- with the new PIN:
+-- The postcondition of Do_Lock wrote "PIN."="(C.MASTER_PIN, Provided_PIN)", saying
+-- that the new PIN equals to the supplied new PIN after Lock operation is performed.
+
+-- 4. The Lock operation, when it is performed, will change the state into Locked:
+-- The postcondition of Do_Lock "C.STATE = LOCKED", saying that the after this 
+-- procedure is performed, the state will be locked.
+
+-- 5. After arithmetic operations, push, pop, load, store and remove operations
+-- are performed, the state of the calculator will remain unlocked:
+-- The postconditions of these procedures states that "C.STATE = UNLOCKED", which
+-- ensure the state of calculator is still unlocked.
+
+-- 6. The Unlock operation will only change the state into unlocked when the PIN
+-- is correct:
+-- The postcondition of Do_Unlock checks if the PINs are the same. If so, the 
+-- state will be unlocked; if not, the state will be locked.
+
 pragma SPARK_Mode (On);
 
 with StringToInteger;
@@ -41,7 +74,7 @@ procedure main is
       end if;
       
       if Lines.To_String(Lines.Substring(S,T(1).Start,T(1).Start+T(1).Length-1)) = "unlock" then
-         if MyCalculator.STATE = calculator.UNLOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.UNLOCKED then
             return;
          end if;
          
@@ -61,7 +94,7 @@ procedure main is
                return;
             end if;
             
-            if MyCalculator.STATE = calculator.LOCKED then
+            if calculator.Current_State(MyCalculator) = calculator.LOCKED then
                calculator.Do_Unlock(MyCalculator, PIN.From_String(Str));
             end if;
             
@@ -89,7 +122,7 @@ procedure main is
                Put_Line("Invalid PIN");
                return;
             end if;
-            if MyCalculator.STATE = calculator.UNLOCKED then
+            if calculator.Current_State(MyCalculator) = calculator.UNLOCKED then
                calculator.Do_Lock(MyCalculator, PIN.From_String(Str));
             end if;
          end;
@@ -120,7 +153,7 @@ procedure main is
                return;
             end if;
             
-            if MyCalculator.STATE = calculator.UNLOCKED then
+            if calculator.Current_State(MyCalculator) = calculator.UNLOCKED then
                declare
                   VAR : VariableStore.Variable := VariableStore.From_String(Str);
                begin
@@ -163,7 +196,7 @@ procedure main is
                   Put_Line("The variable database is full.");
                   return;
                end if;
-               if MyCalculator.STATE = calculator.UNLOCKED then
+               if calculator.Current_State(MyCalculator) = calculator.UNLOCKED then
                   calculator.Do_Store(MyCalculator, VAR);
                end if;
             end;
@@ -191,7 +224,7 @@ procedure main is
                return;
             end if;
             
-            if MyCalculator.STATE = calculator.UNLOCKED then
+            if calculator.Current_State(MyCalculator) = calculator.UNLOCKED then
                declare
                   VAR : VariableStore.Variable := VariableStore.From_String(Str);
                begin
@@ -212,7 +245,7 @@ procedure main is
             Put("Expect 1 argument but instead found ");Put_Line(NumTokens'Image);
             return;
          end if;
-         if MyCalculator.STATE = calculator.UNLOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.UNLOCKED then
             VariableStore.Print(MyCalculator.VAR_DB);
          end if;
          return;
@@ -234,7 +267,7 @@ procedure main is
             return;
          end if;
          
-         if MyCalculator.STATE = calculator.UNLOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.UNLOCKED then
             declare
                Str : String := Lines.To_String(Lines.Substring(S,T(2).Start,T(2).Start+T(2).Length-1));
             begin
@@ -260,7 +293,7 @@ procedure main is
             return;
          end if;
          
-         if MyCalculator.STATE = calculator.UNLOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.UNLOCKED then
             calculator.Do_Pop(MyCalculator);
          end if;
          return;
@@ -282,7 +315,7 @@ procedure main is
             return;
          end if;
          
-         if MyCalculator.STATE = calculator.UNLOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.UNLOCKED then
             declare
                Will_Overflow : Boolean;
             begin
@@ -313,7 +346,7 @@ procedure main is
             return;
          end if;
          
-         if MyCalculator.STATE = calculator.UNLOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.UNLOCKED then
             declare
                Will_Overflow : Boolean;
             begin
@@ -344,7 +377,7 @@ procedure main is
             return;
          end if;
          
-         if MyCalculator.STATE = calculator.UNLOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.UNLOCKED then
             declare
                Will_Overflow : Boolean;
             begin
@@ -375,7 +408,7 @@ procedure main is
             return;
          end if;
          
-         if MyCalculator.STATE = calculator.UNLOCKED then
+         if calculator.Current_State(MyCalculator) = calculator.UNLOCKED then
             declare
                Will_Overflow : Boolean;
             begin
