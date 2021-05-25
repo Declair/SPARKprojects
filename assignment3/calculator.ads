@@ -35,8 +35,9 @@ package calculator with SPARK_Mode is
    
    procedure Do_Unlock(C : in out calculator; Provided_PIN : in PIN.PIN) with
      Pre => (C.STATE = LOCKED), 
-     Post => (if PIN."="(C.MASTER_PIN, Provided_PIN) then C.STATE = UNLOCKED
-             else C.STATE = LOCKED);
+     Post => (PIN."="(C.MASTER_PIN, C.MASTER_PIN'Old) and 
+               (if PIN."="(C.MASTER_PIN, Provided_PIN) then C.STATE = UNLOCKED
+                else C.STATE = LOCKED));
    
    procedure Do_Lock(C : in out calculator; Provided_PIN : in PIN.PIN) with
      Pre => (C.STATE = UNLOCKED),
@@ -44,41 +45,41 @@ package calculator with SPARK_Mode is
    
    procedure Do_Push(C : in out calculator; I : in Integer) with
      Pre => (C.STATE = UNLOCKED and OprandStack_Size(C) < OprandStack_Capability),
-     Post => (C.STATE = UNLOCKED);
+     Post => (C.STATE = UNLOCKED and PIN."="(C.MASTER_PIN, C.MASTER_PIN'Old));
    
    procedure Do_Pop(C : in out calculator) with
      Pre => (C.STATE = UNLOCKED and OprandStack_Size(C) > 0),
-     Post => (C.STATE = UNLOCKED);
+     Post => (C.STATE = UNLOCKED and PIN."="(C.MASTER_PIN, C.MASTER_PIN'Old));
    
    procedure Do_Load(C: in out calculator; Var : in VariableStore.Variable) with
      Pre => (C.STATE = UNLOCKED and OprandStack_Size(C) < OprandStack_Capability),
-     Post => (C.STATE = UNLOCKED);
+     Post => (C.STATE = UNLOCKED and PIN."="(C.MASTER_PIN, C.MASTER_PIN'Old));
    
    procedure Do_Store(C: in out calculator; Var : in VariableStore.Variable) with
      Pre => (C.STATE = UNLOCKED and OprandStack_Size(C) > 0 and
                  (VariableStore.Length(C.VAR_DB) < VariableStore.Max_Entries or 
                         VariableStore.Has_Variable(C.VAR_DB, Var))),
-     Post => (C.STATE = UNLOCKED);
+     Post => (C.STATE = UNLOCKED and PIN."="(C.MASTER_PIN, C.MASTER_PIN'Old));
    
    procedure Do_Remove(C: in out calculator; Var : in VariableStore.Variable) with
      Pre => (C.STATE = UNLOCKED),
-     Post => (C.STATE = UNLOCKED);
+     Post => (C.STATE = UNLOCKED and PIN."="(C.MASTER_PIN, C.MASTER_PIN'Old));
    
    procedure Do_Add(C: in out calculator; Will_Overflow : out Boolean) with
      Pre => (C.STATE = UNLOCKED and OprandStack_Size(C) >= 2),
-     Post => (C.STATE = UNLOCKED);
+     Post => (C.STATE = UNLOCKED and PIN."="(C.MASTER_PIN, C.MASTER_PIN'Old));
    
    procedure Do_Substract(C: in out calculator; Will_Overflow : out Boolean) with
      Pre => (C.STATE = UNLOCKED and OprandStack_Size(C) >= 2),
-     Post => (C.STATE = UNLOCKED);
+     Post => (C.STATE = UNLOCKED and PIN."="(C.MASTER_PIN, C.MASTER_PIN'Old));
    
    procedure Do_Multiply(C: in out calculator; Will_Overflow : out Boolean) with
      Pre => (C.STATE = UNLOCKED and OprandStack_Size(C) >= 2),
-     Post => (C.STATE = UNLOCKED);
+     Post => (C.STATE = UNLOCKED and PIN."="(C.MASTER_PIN, C.MASTER_PIN'Old));
    
    procedure Do_Divide(C: in out calculator; Will_Overflow : out Boolean) with
      Pre => (C.STATE = UNLOCKED and OprandStack_Size(C) >= 2),
-     Post => (C.STATE = UNLOCKED);
+     Post => (C.STATE = UNLOCKED and PIN."="(C.MASTER_PIN, C.MASTER_PIN'Old));
    
    function VariableDatabase_Full(C : in calculator) return Boolean is
      (VariableStore.Length(C.VAR_DB) >= VariableStore.Max_Entries);

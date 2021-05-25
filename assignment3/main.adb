@@ -12,9 +12,11 @@
 -- which means these operations can only be performed in unlocked state. 
 
 -- 2. The Unlock operation can only ever be performed when the calculator is in 
--- the locked state:
+-- the locked state. And when it's performed, it will not change the master PIN:
 -- The precondition of procedure Do_Unlock in calculator.ads "C.STATE = LOCKED". 
--- It means unlock operation can only be performed in locked state.
+-- It means unlock operation can only be performed in locked state. And it also
+-- said "PIN."="(C.MASTER_PIN, C.MASTER_PIN'Old)", meaning that the master PIN 
+-- will not change.
 
 -- 3. The Lock operation, when it is performed, should update the master PIN 
 -- with the new PIN:
@@ -26,14 +28,24 @@
 -- procedure is performed, the state will be locked.
 
 -- 5. After arithmetic operations, push, pop, load, store and remove operations
--- are performed, the state of the calculator will remain unlocked:
--- The postconditions of these procedures states that "C.STATE = UNLOCKED", which
--- ensure the state of calculator is still unlocked.
+-- are performed, the calculator state will remain unlocked, and PIN won't change:
+-- The postconditions of these procedures states that "C.STATE = UNLOCKED" and
+-- "PIN."="(C.MASTER_PIN, C.MASTER_PIN'Old)" which ensure the state and PIN of 
+-- calculator will not be changed.
 
 -- 6. The Unlock operation will only change the state into unlocked when the PIN
 -- is correct:
 -- The postcondition of Do_Unlock checks if the PINs are the same. If so, the 
 -- state will be unlocked; if not, the state will be locked.
+
+-- 7. When the program is started, the calculator will be locked and the PIN is
+-- the initial given PIN.
+-- The postcondition of procedure Init in calculator.ads checks that the state
+-- of the calculator is locked and the PIN is equals to the given PIN.
+
+-- 8. Behaviours like oprand stack overflow will never happen.
+-- The precondition of Do_Load, Do_Store, Do_Push, Do_Pop will check the size
+-- of oprand stack and variable database.
 
 pragma SPARK_Mode (On);
 
@@ -55,7 +67,7 @@ with Ada.Containers; use Ada.Containers;  -- to check if variable store is full
 
 procedure main is
    MyCalculator : calculator.calculator;
-   MASTER_PIN  : PIN.PIN := PIN.From_String("1234");
+   MASTER_PIN  : PIN.PIN ;
    package Lines is new MyString(Max_MyString_Length => 2048);
    T : MyStringTokeniser.TokenArray(1..5) := (others => (Start => 1, Length => 0));
    INVALID : Integer := 0;
@@ -434,8 +446,9 @@ begin
    
    -- Receiving and setting master PIN from commandline argument
    if MyCommandLine.Argument_Count = 0 then
-      Put_Line("No initial master PIN was provided, use the default PIN 1234");
-   elsif MyCommandLine.Argument_Count >= 1 then
+      Put_Line("No initial master PIN was provided.");
+      return;
+   elsif MyCommandLine.Argument_Count = 1 then
       
       if MyCommandLine.Argument(1)' Length = 4 and
         (for all I in MyCommandLine.Argument(1)'Range => 
@@ -446,6 +459,9 @@ begin
          Put_Line("Invalid initial master PIN.");
          return;
       end if;
+   else
+      Put_Line("The program was started with too many arguments");
+      return;
    end if;
    
    -- Initialising the calculater, including setting initial master PIN, 
