@@ -1,0 +1,5 @@
+project workshop11 is
+    for Source_Dirs use (".");
+    for Object_Dir use "obj";
+    for Main use ("testsensor.adb");
+end workshop11;
