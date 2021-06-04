@@ -12,6 +12,7 @@ package body Person with SPARK_Mode is
    procedure Get_Name(P : in out Person; S : out NamePtr) is
    begin
       S := P.Name;
+      P.Name := new String'(S.all); -- allocate a new string for P.Name to point to.
    end Get_Name;
 
    procedure Print(P: in Person) is

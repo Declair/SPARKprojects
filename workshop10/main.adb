@@ -36,7 +36,9 @@ procedure Main with SPARK_Mode is
    end Name_Compare;
 
 begin
-   Ada.Text_IO.Put_Line(S.all);
+   -- P.Name ans S both alias and P.Name is more recent. So we are not allowed
+   -- to use S anymore.
+   -- Ada.Text_IO.Put_Line(S.all);   -- alias was created, use P.Name instead
 
    Print(P);
    pragma Assert(P.Name.all = "John Doe" and P.Age = Age);
