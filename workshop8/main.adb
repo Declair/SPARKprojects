@@ -29,13 +29,13 @@ begin
       -- We derive that final result step-by-step
 
       -- firstly K is not greater than X/N
-      pragma Assert (K * N <= X);
-      pragma Assert (X/N >= K);
+      --pragma Assert (K * N <= X);
+      --pragma Assert (X/N >= K);
 
       -- secondly K is not lower than X/N
-      pragma Assert (if K < Integer'Last and then Integer'Last / N > K + 1 then
+      --pragma Assert (if K < Integer'Last and then Integer'Last / N > K + 1 then
       --                   N * (K + 1) > X);
-      pragma Assert (X/N <= K);
+      --pragma Assert (X/N <= K);
 
       -- therefore K is exactly equal to X/N
       pragma Assert (X/N = K);
