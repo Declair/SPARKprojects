@@ -1,7 +1,3 @@
--- Names:
--- 1061668 Jihao Deng
--- 1054053 Qiqi Hu
-
 -- Task 4:
 -- In our implementation, performing each operations is written in a procedure
 -- in calculator package, such as Do_Add, Do_Push.
